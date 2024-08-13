@@ -70,7 +70,6 @@ def check_content_type(content_type):
 ######################################################################
 @app.route("/products", methods=["POST"])
 def create_products():
-    
     """
     Creates a Product
     This endpoint will create a Product based the data in the body that is posted
@@ -80,10 +79,8 @@ def create_products():
 
     data = request.get_json()
     app.logger.info("Processing: %s", data)
-    
     product = Product()
     product.deserialize(data)
-    
     product.create()
     app.logger.info("Product with new id [%s] saved!", product.id)
 
@@ -92,7 +89,7 @@ def create_products():
     #
     # Uncomment this line of code once you implement READ A PRODUCT
     #
-    location_url = url_for("get_products", product_id=product.id, _external=True)    
+    location_url = url_for("get_products", product_id=product.id, _external=True)
     return jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
 
 
@@ -138,6 +135,7 @@ def list_products():
 # R E A D   A   P R O D U C T
 ######################################################################
 
+
 @app.route("/products/<int:product_id>", methods=["GET"])
 def get_products(product_id):
     """
@@ -161,7 +159,6 @@ def get_products(product_id):
 
 @app.route("/products", methods=["PUT"])
 def update_product():
-    
     """
     Update a Product
     """
@@ -170,24 +167,22 @@ def update_product():
 
     data = request.get_json()
     app.logger.info("Processing: %s", data)
-    
     product = Product()
     product.deserialize(data)
 
     if not product.id:
-        abort(status.HTTP_400_BAD_REQUEST, f"id must be specified.")
+        abort(status.HTTP_400_BAD_REQUEST, "id must be specified.")
 
     existing = Product.find(product.id)
     if not existing:
-        abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
-
+        abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product.id}' was not found.")
 
     product.update()
     app.logger.info("Product with new id [%s] saved!", product.id)
 
     message = product.serialize()
 
-    location_url = url_for("get_products", product_id=product.id, _external=True)    
+    location_url = url_for("get_products", product_id=product.id, _external=True)
     return jsonify(message), status.HTTP_200_OK, {"Location": location_url}
 
 
@@ -206,6 +201,4 @@ def delete_product(product_id):
         abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
 
     product.delete()
-    
     return {"id": product_id}, 204
-
