@@ -199,3 +199,31 @@ def list_by_category(category):
     for product in Product.find_by_category(Category[category]):
         items.append(product.serialize())
     return items, status.HTTP_200_OK
+
+
+@app.route("/products/availability/<available>", methods=["GET"])
+def list_by_availability(available):
+    """
+    Retrieve Products by availability
+
+    """
+    app.logger.info("Request to Retrieve products by availability")
+    available = available in ["True","true","1"]
+    items = []
+    for product in Product.find_by_availability(available):
+        items.append(product.serialize())
+    return items, status.HTTP_200_OK
+
+
+@app.route("/products/name/<product_name>", methods=["GET"])
+def get_product_by_name(product_name):
+    """
+    Retrieve a single Product by name
+    """
+    app.logger.info("Request to Retrieve a product with name [%s]", product_name)
+
+    items = []
+    for product in Product.find_by_name(product_name):
+        items.append(product.serialize())
+
+    return items, status.HTTP_200_OK

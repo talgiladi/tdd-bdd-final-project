@@ -200,6 +200,52 @@ class TestProductRoutes(TestCase):
                 found = True
         self.assertTrue(found)
 
+    def test_find_product_by_availability(self):
+        """It should find a product by availability"""
+        products = Product.all()
+        available = 0
+        self.assertEqual(products, [])
+        for _ in range(10):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            # Assert that it was assigned an id and shows up in the database
+            self.assertIsNotNone(product.id)
+            products.append(product)
+            if product.available:
+                available += 1
+
+        response = self.client.get(BASE_URL+"/availability/True")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        products = response.get_json()
+        self.assertEqual(len(products), available)
+
+        response = self.client.get(BASE_URL+"/availability/False")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        products = response.get_json()
+        self.assertEqual(len(products), 10- available)
+
+    def test_find_product_by_name(self):
+        """It should find a product by name"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        for i in range(5):
+            product = ProductFactory()
+            product.id = None
+            product.name = f"my name{i}"
+            product.create()
+            # Assert that it was assigned an id and shows up in the database
+            self.assertIsNotNone(product.id)
+            products.append(product)
+
+        for product in products:
+            response = self.client.get(f"{BASE_URL}/name/{product.name}")
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            data = response.get_json()
+            for item in data:
+                self.assertEqual(item["name"], product.name)
+            
+
     def test_find_product_by_category(self):
         """It should find a product by category"""
         products = Product.all()
