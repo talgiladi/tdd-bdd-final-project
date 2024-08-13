@@ -111,9 +111,6 @@ def create_products():
 #
 # PLACE YOUR CODE HERE TO READ A PRODUCT
 #
-######################################################################
-# READ A PRODUCT
-######################################################################
 @app.route("/products/<int:product_id>", methods=["GET"])
 def get_products(product_id):
     """
@@ -135,14 +132,55 @@ def get_products(product_id):
 # U P D A T E   A   P R O D U C T
 ######################################################################
 
-#
-# PLACE YOUR CODE TO UPDATE A PRODUCT HERE
-#
+@app.route("/products", methods=["PUT"])
+def update_product():
+    
+    """
+    Update a Product
+    """
+    app.logger.info("Request to update a Product...")
+    check_content_type("application/json")
+
+    data = request.get_json()
+    app.logger.info("Processing: %s", data)
+    
+    product = Product()
+    product.deserialize(data)
+
+    if not product.id:
+        abort(status.HTTP_400_BAD_REQUEST, f"id must be specified.")
+
+    existing = Product.find(product.id)
+    if not existing:
+        abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
+
+
+    product.update()
+    app.logger.info("Product with new id [%s] saved!", product.id)
+
+    message = product.serialize()
+
+    location_url = url_for("get_products", product_id=product.id, _external=True)    
+    return jsonify(message), status.HTTP_200_OK, {"Location": location_url}
+
 
 ######################################################################
 # D E L E T E   A   P R O D U C T
 ######################################################################
+@app.route("/products/<int:product_id>", methods=["DELETE"])
+def delete_product(product_id):
+    """
+    delete a product
+    """
+    app.logger.info("Request to delete a product with id [%s]", product_id)
 
+    product = Product.find(product_id)
+    if not product:
+        abort(status.HTTP_404_NOT_FOUND, f"Product with id '{product_id}' was not found.")
+
+    product.delete()
+    
+    return {"id": product_id}, 204
 
 #
 # PLACE YOUR CODE TO DELETE A PRODUCT HERE
