@@ -20,7 +20,7 @@ Product Store Service with UI
 """
 from flask import jsonify, request, abort
 from flask import url_for  # noqa: F401 pylint: disable=unused-import
-from service.models import Product
+from service.models import Product, Category
 from service.common import status  # HTTP Status Codes
 from . import app
 
@@ -100,17 +100,22 @@ def create_products():
 # L I S T   A L L   P R O D U C T S
 ######################################################################
 
-#
-# PLACE YOUR CODE TO LIST ALL PRODUCTS HERE
-#
+@app.route("/products", methods=["GET"])
+def list_all_products():
+    """
+    Retrieve all Products
+
+    """
+    app.logger.info("Request to Retrieve all products")
+    items = []
+    for product in Product.all():
+        items.append(product.serialize())
+    return items, status.HTTP_200_OK
 
 ######################################################################
 # R E A D   A   P R O D U C T
 ######################################################################
 
-#
-# PLACE YOUR CODE HERE TO READ A PRODUCT
-#
 @app.route("/products/<int:product_id>", methods=["GET"])
 def get_products(product_id):
     """
@@ -182,6 +187,15 @@ def delete_product(product_id):
     
     return {"id": product_id}, 204
 
-#
-# PLACE YOUR CODE TO DELETE A PRODUCT HERE
-#
+
+@app.route("/products/category/<category>", methods=["GET"])
+def list_by_category(category):
+    """
+    Retrieve Products by category
+
+    """
+    app.logger.info("Request to Retrieve products by category")
+    items = []
+    for product in Product.find_by_category(Category[category]):
+        items.append(product.serialize())
+    return items, status.HTTP_200_OK

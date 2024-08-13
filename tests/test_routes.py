@@ -186,6 +186,47 @@ class TestProductRoutes(TestCase):
         product = response.get_json()
         self.assertEqual(product["description"], "my new description")
 
+    def test_list_all_products(self):
+        """It should list all products"""
+        test_product = self._create_products(1)[0]
+        found = False
+       
+        response = self.client.get(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        products = response.get_json()
+        for item in products:
+            if test_product.id == item["id"]:
+                found = True
+        self.assertTrue(found)
+
+    def test_find_product_by_category(self):
+        """It should find a product by category"""
+        products = Product.all()
+        self.assertEqual(products, [])
+        category = ''
+        number_of_products = 0
+        for i in range(10):
+            product = ProductFactory()
+            product.id = None
+            product.create()
+            # Assert that it was assigned an id and shows up in the database
+            self.assertIsNotNone(product.id)
+            products.append(product)
+            if i == 0:
+                category = product.category
+            if product.category == category:
+                number_of_products += 1
+
+
+        response = self.client.get(BASE_URL+"/category/"+str(category.name))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        
+        products = response.get_json()
+        self.assertEqual(len(products), number_of_products)
+        for item in products:
+            self.assertEqual(item["category"], category.name)
+
     def test_get_product(self):
         """It should Get a single Product"""
         # get the id of a product
