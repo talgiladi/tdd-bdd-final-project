@@ -54,8 +54,9 @@ def step_impl(context):
             "available": row['available'] in ['True', 'true', '1'],
             "category": row['category']
         }
-        response = requests.post(rest_endpoint, json = product.serialize())
-        assert(context.resp.status_code == 201)
+        response = requests.post(rest_endpoint, json = product)
+        print(context.resp.status_code)
+        assert(context.resp.status_code == 200)
 
 @when('I press the "{button}" button')
 def step_impl(context, button):

@@ -18,9 +18,9 @@ Scenario: The server is running
 
 Scenario: Read a product
     When I visit the "Home Page"
-    And I set "Name" to "Hat"
-    And I click the "Search" button
-    Then I should see "Success" message
+    And I set the "Name" to "Hat"
+    And I press the "Search" button
+    Then I should see the message "Success"
     When I copy the "Id" field
     And I press the "Clear" button
     And I paste the "Id" field
