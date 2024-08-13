@@ -70,6 +70,7 @@ def check_content_type(content_type):
 ######################################################################
 @app.route("/products", methods=["POST"])
 def create_products():
+    
     """
     Creates a Product
     This endpoint will create a Product based the data in the body that is posted
@@ -79,8 +80,10 @@ def create_products():
 
     data = request.get_json()
     app.logger.info("Processing: %s", data)
+    
     product = Product()
     product.deserialize(data)
+    
     product.create()
     app.logger.info("Product with new id [%s] saved!", product.id)
 
