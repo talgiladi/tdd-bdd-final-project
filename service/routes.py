@@ -100,17 +100,39 @@ def create_products():
 # L I S T   A L L   P R O D U C T S
 ######################################################################
 
+######################################################################
+# LIST PRODUCTS
+######################################################################
 @app.route("/products", methods=["GET"])
-def list_all_products():
-    """
-    Retrieve all Products
+def list_products():
+    """Returns a list of Products"""
+    app.logger.info("Request to list Products...")
 
-    """
-    app.logger.info("Request to Retrieve all products")
-    items = []
-    for product in Product.all():
-        items.append(product.serialize())
-    return items, status.HTTP_200_OK
+    products = []
+    name = request.args.get("name")
+    category = request.args.get("category")
+    available = request.args.get("available")
+
+    if name:
+        app.logger.info("Find by name: %s", name)
+        products = Product.find_by_name(name)
+    elif category:
+        app.logger.info("Find by category: %s", category)
+        # create enum from string
+        category_value = getattr(Category, category.upper())
+        products = Product.find_by_category(category_value)
+    elif available:
+        app.logger.info("Find by available: %s", available)
+        # create bool from string
+        available_value = available.lower() in ["true", "yes", "1"]
+        products = Product.find_by_availability(available_value)
+    else:
+        app.logger.info("Find all")
+        products = Product.all()
+
+    results = [product.serialize() for product in products]
+    app.logger.info("[%s] Products returned", len(results))
+    return results, status.HTTP_200_OK
 
 ######################################################################
 # R E A D   A   P R O D U C T
@@ -187,43 +209,3 @@ def delete_product(product_id):
     
     return {"id": product_id}, 204
 
-
-@app.route("/products/category/<category>", methods=["GET"])
-def list_by_category(category):
-    """
-    Retrieve Products by category
-
-    """
-    app.logger.info("Request to Retrieve products by category")
-    items = []
-    for product in Product.find_by_category(Category[category]):
-        items.append(product.serialize())
-    return items, status.HTTP_200_OK
-
-
-@app.route("/products/availability/<available>", methods=["GET"])
-def list_by_availability(available):
-    """
-    Retrieve Products by availability
-
-    """
-    app.logger.info("Request to Retrieve products by availability")
-    available = available in ["True","true","1"]
-    items = []
-    for product in Product.find_by_availability(available):
-        items.append(product.serialize())
-    return items, status.HTTP_200_OK
-
-
-@app.route("/products/name/<product_name>", methods=["GET"])
-def get_product_by_name(product_name):
-    """
-    Retrieve a single Product by name
-    """
-    app.logger.info("Request to Retrieve a product with name [%s]", product_name)
-
-    items = []
-    for product in Product.find_by_name(product_name):
-        items.append(product.serialize())
-
-    return items, status.HTTP_200_OK

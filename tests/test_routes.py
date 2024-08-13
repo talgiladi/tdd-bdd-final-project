@@ -215,12 +215,13 @@ class TestProductRoutes(TestCase):
             if product.available:
                 available += 1
 
-        response = self.client.get(BASE_URL+"/availability/True")
+        response = self.client.get(f"{BASE_URL}", query_string=f"available=True")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         products = response.get_json()
         self.assertEqual(len(products), available)
 
-        response = self.client.get(BASE_URL+"/availability/False")
+        response = self.client.get(f"{BASE_URL}", query_string=f"available=False")
+        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         products = response.get_json()
         self.assertEqual(len(products), 10- available)
@@ -239,7 +240,7 @@ class TestProductRoutes(TestCase):
             products.append(product)
 
         for product in products:
-            response = self.client.get(f"{BASE_URL}/name/{product.name}")
+            response = self.client.get(f"{BASE_URL}", query_string=f"name={product.name}")
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             data = response.get_json()
             for item in data:
@@ -265,7 +266,8 @@ class TestProductRoutes(TestCase):
                 number_of_products += 1
 
 
-        response = self.client.get(BASE_URL+"/category/"+str(category.name))
+        response = self.client.get(f"{BASE_URL}", query_string=f"category={category.name}")
+        
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
         products = response.get_json()
